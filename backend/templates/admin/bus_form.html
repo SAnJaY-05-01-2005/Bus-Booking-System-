@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{% if bus %}Edit Bus{% else %}Add New Bus{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-3">
+                    <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/buses">Buses</a></li>
+                    <li class="breadcrumb-item active">{% if bus %}Edit{% else %}Add New{% endif %}</li>
+                </ol>
+            </nav>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bus-front me-2"></i>
+                        {% if bus %}Edit Bus{% else %}Add New Bus{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+                    
+                    <form method="post" action="/admin/buses/new">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">Bus Name</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ bus.name if bus else '' }}" required
+                                       placeholder="e.g., Express Deluxe">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="registration_number" class="form-label">Registration Number</label>
+                                <input type="text" class="form-control" id="registration_number" name="registration_number" 
+                                       value="{{ bus.registration_number if bus else '' }}" required
+                                       placeholder="e.g., BUS-001">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="bus_type" class="form-label">Bus Type</label>
+                                <select class="form-select" id="bus_type" name="bus_type" required>
+                                    <option value="ac" {% if bus and bus.bus_type == 'ac' %}selected{% endif %}>AC</option>
+                                    <option value="non-ac" {% if bus and bus.bus_type == 'non-ac' %}selected{% endif %}>Non-AC</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-12">
+                                <hr class="my-2">
+                                <h6 class="mb-3">Seat Configuration</h6>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="rows" class="form-label">Number of Rows</label>
+                                <input type="number" class="form-control" id="rows" name="rows" 
+                                       value="10" required min="1" max="26">
+                                <div class="form-text">Rows will be labeled A, B, C, etc.</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="cols" class="form-label">Seats per Row</label>
+                                <input type="number" class="form-control" id="cols" name="cols" 
+                                       value="4" required min="2" max="6">
+                                <div class="form-text">Typically 4 (2+2) or 5 (2+3)</div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="bg-light rounded p-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span>Total Seats:</span>
+                                        <strong id="total_seats">40</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="amenities" class="form-label">Amenities</label>
+                                <input type="text" class="form-control" id="amenities" name="amenities" 
+                                       value="{{ bus.amenities|join(', ') if bus and bus.amenities else '' }}"
+                                       placeholder="wifi, ac, charging, sleeper (comma-separated)">
+                            </div>
+                            
+                            <div class="col-12">
+                                <hr class="my-2">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-lg me-2"></i>
+                                        {% if bus %}Update Bus{% else %}Create Bus{% endif %}
+                                    </button>
+                                    <a href="/admin/buses" class="btn btn-outline-secondary">Cancel</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const rowsInput = document.getElementById('rows');
+    const colsInput = document.getElementById('cols');
+    const totalSeats = document.getElementById('total_seats');
+    
+    function updateTotal() {
+        const rows = parseInt(rowsInput.value) || 0;
+        const cols = parseInt(colsInput.value) || 0;
+        totalSeats.textContent = rows * cols;
+    }
+    
+    rowsInput.addEventListener('input', updateTotal);
+    colsInput.addEventListener('input', updateTotal);
+</script>
+{% endblock %}

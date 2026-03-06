@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Schedules{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
+                    <li class="breadcrumb-item active">Schedules</li>
+                </ol>
+            </nav>
+            <h2 class="mb-0">Manage Schedules</h2>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+            <i class="bi bi-plus-lg me-2"></i>Add Schedule
+        </button>
+    </div>
+    
+    {% if schedules %}
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Bus</th>
+                        <th>Route</th>
+                        <th>Departure</th>
+                        <th>Arrival</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for schedule in schedules %}
+                    <tr>
+                        <td>{{ schedule.bus_name }}</td>
+                        <td>{{ schedule.origin }} - {{ schedule.destination }}</td>
+                        <td>{{ schedule.departure_time[:16].replace('T', ' ') }}</td>
+                        <td>{{ schedule.arrival_time[:16].replace('T', ' ') }}</td>
+                        <td>${{ "%.2f"|format(schedule.base_price * schedule.price_multiplier) }}</td>
+                        <td>
+                            {% if schedule.status == 'active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% elif schedule.status == 'cancelled' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ schedule.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/bus/{{ schedule.id }}" class="btn btn-sm btn-outline-primary">
+                                View Seats
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
+            <h5 class="mt-3">No Schedules Yet</h5>
+            <p class="text-muted">Add your first schedule to get started.</p>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+                <i class="bi bi-plus-lg me-2"></i>Add Schedule
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add Schedule Modal -->
+<div class="modal fade" id="addScheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="/admin/schedules/new">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-calendar-event me-2"></i>Add New Schedule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="bus_id" class="form-label">Bus</label>
+                        <select class="form-select" id="bus_id" name="bus_id" required>
+                            <option value="">Select Bus</option>
+                            {% for bus in buses %}
+                            <option value="{{ bus.id }}">{{ bus.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="route_id" class="form-label">Route</label>
+                        <select class="form-select" id="route_id" name="route_id" required>
+                            <option value="">Select Route</option>
+                            {% for route in routes %}
+                            <option value="{{ route.id }}">{{ route.origin }} - {{ route.destination }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="departure_time" class="form-label">Departure Time</label>
+                        <input type="datetime-local" class="form-control" id="departure_time" name="departure_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="arrival_time" class="form-label">Arrival Time</label>
+                        <input type="datetime-local" class="form-control" id="arrival_time" name="arrival_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price_multiplier" class="form-label">Price Multiplier</label>
+                        <input type="number" class="form-control" id="price_multiplier" name="price_multiplier" 
+                               value="1.0" required min="0.5" max="3" step="0.1">
+                        <div class="form-text">1.0 = base price, 1.5 = 50% more, etc.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

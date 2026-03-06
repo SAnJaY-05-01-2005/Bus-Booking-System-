@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="bi bi-person text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h4 class="mb-1">{{ user_data.name }}</h4>
+                    <span class="badge {% if user_data.role == 'admin' %}bg-danger{% else %}bg-primary{% endif %} mb-3">
+                        {{ user_data.role|capitalize }}
+                    </span>
+                    
+                    <div class="text-start mt-3">
+                        <p class="mb-2">
+                            <i class="bi bi-envelope text-muted me-2"></i>
+                            {{ user_data.email }}
+                            {% if user_data.email_verified %}
+                            <i class="bi bi-check-circle-fill text-success ms-1" title="Verified"></i>
+                            {% endif %}
+                        </p>
+                        {% if user_data.phone %}
+                        <p class="mb-2">
+                            <i class="bi bi-telephone text-muted me-2"></i>
+                            {{ user_data.phone }}
+                            {% if user_data.phone_verified %}
+                            <i class="bi bi-check-circle-fill text-success ms-1" title="Verified"></i>
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                        <p class="mb-0 text-muted small">
+                            <i class="bi bi-calendar text-muted me-2"></i>
+                            Member since {{ user_data.created_at[:10] }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- QR Code Card -->
+            {% if user_data.profile_qr_code %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-qr-code me-2"></i>Your QR Profile</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="qr-code-container mb-3">
+                        <img src="data:image/png;base64,{{ user_data.profile_qr_code }}" alt="Profile QR Code">
+                    </div>
+                    <p class="text-muted small mb-0">Scan to view your booking history</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Bookings -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-ticket-perforated me-2"></i>My Bookings</h5>
+                    <a href="/search" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus me-1"></i>New Booking
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Route</th>
+                                    <th>Departure</th>
+                                    <th>Seats</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                <tr>
+                                    <td>
+                                        <a href="/booking/{{ booking.booking_reference }}" class="text-decoration-none fw-medium">
+                                            {{ booking.booking_reference }}
+                                        </a>
+                                    </td>
+                                    <td>{{ booking.origin }} - {{ booking.destination }}</td>
+                                    <td>{{ booking.departure_time[:16].replace('T', ' ') }}</td>
+                                    <td>
+                                        {% set seats = booking.seat_ids|string|replace('[','')|replace(']','') %}
+                                        {{ seats.split(',')|length }} seat(s)
+                                    </td>
+                                    <td>${{ "%.2f"|format(booking.total_price) }}</td>
+                                    <td>
+                                        {% if booking.payment_status == 'completed' %}
+                                        <span class="badge bg-success">Confirmed</span>
+                                        {% elif booking.payment_status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">{{ booking.payment_status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="/booking/{{ booking.booking_reference }}" class="btn btn-sm btn-outline-primary">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-ticket text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3">No Bookings Yet</h5>
+                        <p class="text-muted">You haven't made any bookings. Start by searching for a bus!</p>
+                        <a href="/search" class="btn btn-primary">
+                            <i class="bi bi-search me-2"></i>Search Buses
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Track Bus - SwiftBus{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    #map {
+        height: 500px;
+        border-radius: 12px;
+    }
+    .tracking-info {
+        background: linear-gradient(135deg, var(--primary) 0%, #667eea 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Track Your Bus</h1>
+    
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body p-0">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="tracking-info mb-4">
+                <h5 class="mb-3">Bus Location</h5>
+                <div id="bus-info">
+                    <p class="mb-2"><i class="bi bi-geo-alt me-2"></i><span id="current-location">Loading...</span></p>
+                    <p class="mb-2"><i class="bi bi-speedometer2 me-2"></i><span id="speed">-- km/h</span></p>
+                    <p class="mb-0"><i class="bi bi-clock me-2"></i>ETA: <span id="eta">Calculating...</span></p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Track by Booking Reference</h6>
+                </div>
+                <div class="card-body">
+                    <form id="track-form">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="booking-ref" placeholder="Enter booking reference" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-2"></i>Track
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Route Progress</h6>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3" style="height: 10px;">
+                        <div class="progress-bar bg-primary" id="route-progress" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span id="origin-name">Origin</span>
+                        <span id="destination-name">Destination</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize map centered on a default location
+    const map = L.map('map').setView([40.7128, -74.0060], 10);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Bus icon
+    const busIcon = L.divIcon({
+        html: '<i class="bi bi-bus-front-fill text-primary" style="font-size: 24px;"></i>',
+        className: 'bus-marker',
+        iconSize: [24, 24]
+    });
+    
+    let busMarker = null;
+    let trackingInterval = null;
+    
+    // Demo: Simulate bus movement
+    function simulateBusMovement() {
+        const routes = [
+            { lat: 40.7128, lng: -74.0060, location: "New York City" },
+            { lat: 40.7580, lng: -73.9855, location: "Midtown Manhattan" },
+            { lat: 40.8448, lng: -73.8648, location: "The Bronx" },
+            { lat: 41.0534, lng: -73.5387, location: "Stamford, CT" },
+            { lat: 41.3083, lng: -72.9279, location: "New Haven, CT" }
+        ];
+        
+        let currentIndex = 0;
+        
+        function updatePosition() {
+            const pos = routes[currentIndex];
+            
+            if (busMarker) {
+                busMarker.setLatLng([pos.lat, pos.lng]);
+            } else {
+                busMarker = L.marker([pos.lat, pos.lng], { icon: busIcon }).addTo(map);
+            }
+            
+            map.setView([pos.lat, pos.lng], 12);
+            
+            document.getElementById('current-location').textContent = pos.location;
+            document.getElementById('speed').textContent = Math.floor(Math.random() * 40 + 60) + ' km/h';
+            document.getElementById('eta').textContent = (routes.length - currentIndex - 1) * 15 + ' mins';
+            document.getElementById('route-progress').style.width = ((currentIndex + 1) / routes.length * 100) + '%';
+            
+            currentIndex = (currentIndex + 1) % routes.length;
+        }
+        
+        updatePosition();
+        trackingInterval = setInterval(updatePosition, 5000);
+    }
+    
+    document.getElementById('track-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const ref = document.getElementById('booking-ref').value;
+        
+        // In production, this would fetch actual bus location
+        // For demo, we simulate movement
+        if (trackingInterval) clearInterval(trackingInterval);
+        simulateBusMovement();
+    });
+    
+    // Start demo simulation on page load
+    simulateBusMovement();
+</script>
+{% endblock %}

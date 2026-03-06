@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Search Buses{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Search Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="/search" method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">From</label>
+                        <select name="origin" class="form-select">
+                            <option value="">Any Origin</option>
+                            {% for city in origins %}
+                            <option value="{{ city }}" {% if filters.origin == city %}selected{% endif %}>{{ city }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">To</label>
+                        <select name="destination" class="form-select">
+                            <option value="">Any Destination</option>
+                            {% for city in destinations %}
+                            <option value="{{ city }}" {% if filters.destination == city %}selected{% endif %}>{{ city }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Date</label>
+                        <input type="date" name="date" class="form-control" value="{{ filters.date }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Bus Type</label>
+                        <select name="bus_type" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="ac" {% if filters.bus_type == 'ac' %}selected{% endif %}>AC</option>
+                            <option value="non-ac" {% if filters.bus_type == 'non-ac' %}selected{% endif %}>Non-AC</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Sort By</label>
+                        <select name="sort" class="form-select">
+                            <option value="departure" {% if filters.sort == 'departure' %}selected{% endif %}>Departure Time</option>
+                            <option value="price_low" {% if filters.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if filters.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-2"></i>Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Results -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Available Buses</h4>
+        <span class="text-muted">{{ schedules|length }} result(s)</span>
+    </div>
+    
+    {% if schedules %}
+    <div class="row g-4">
+        {% for schedule in schedules %}
+        <div class="col-12">
+            <div class="card bus-card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-bus-front text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">{{ schedule.bus_name }}</h6>
+                                    <span class="badge {% if schedule.bus_type == 'ac' %}badge-ac{% else %}badge-non-ac{% endif %} small">
+                                        {{ schedule.bus_type|upper }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% if schedule.amenities %}
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for amenity in schedule.amenities %}
+                                <span class="amenity-badge">
+                                    {% if amenity == 'wifi' %}<i class="bi bi-wifi"></i>{% endif %}
+                                    {% if amenity == 'ac' %}<i class="bi bi-snow"></i>{% endif %}
+                                    {% if amenity == 'charging' %}<i class="bi bi-plug"></i>{% endif %}
+                                    {{ amenity }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="text-center">
+                                    <div class="fw-bold">{{ schedule.departure_time[11:16] }}</div>
+                                    <div class="text-muted small">{{ schedule.origin }}</div>
+                                </div>
+                                <div class="flex-grow-1 px-3">
+                                    <div class="position-relative">
+                                        <div class="border-top border-2 border-primary"></div>
+                                        <i class="bi bi-arrow-right position-absolute top-50 start-50 translate-middle bg-white text-primary"></i>
+                                    </div>
+                                    <div class="text-center text-muted small mt-1">{{ schedule.distance_km }} km</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fw-bold">{{ schedule.arrival_time[11:16] }}</div>
+                                    <div class="text-muted small">{{ schedule.destination }}</div>
+                                </div>
+                            </div>
+                            <div class="text-center text-muted small mt-1">
+                                {{ schedule.departure_time[:10] }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2 text-center">
+                            <div class="text-muted small">Available</div>
+                            <div class="fw-bold text-success">{{ schedule.total_seats }} seats</div>
+                        </div>
+                        
+                        <div class="col-md-3 text-end">
+                            <div class="mb-2">
+                                <span class="text-muted small">from</span>
+                                <span class="fs-4 fw-bold text-primary">${{ "%.2f"|format(schedule.final_price) }}</span>
+                            </div>
+                            <a href="/bus/{{ schedule.id }}" class="btn btn-primary">
+                                Select Seats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
+            <h5 class="mt-3">No Buses Found</h5>
+            <p class="text-muted">Try adjusting your search filters or selecting different dates.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

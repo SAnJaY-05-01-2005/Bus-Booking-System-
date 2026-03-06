@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Routes{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
+                    <li class="breadcrumb-item active">Routes</li>
+                </ol>
+            </nav>
+            <h2 class="mb-0">Manage Routes</h2>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRouteModal">
+            <i class="bi bi-plus-lg me-2"></i>Add Route
+        </button>
+    </div>
+    
+    {% if routes %}
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Origin</th>
+                        <th>Destination</th>
+                        <th>Distance</th>
+                        <th>Base Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for route in routes %}
+                    <tr>
+                        <td>{{ route.id }}</td>
+                        <td>
+                            <i class="bi bi-geo-alt text-success me-1"></i>
+                            {{ route.origin }}
+                        </td>
+                        <td>
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                            {{ route.destination }}
+                        </td>
+                        <td>{{ route.distance_km }} km</td>
+                        <td>${{ "%.2f"|format(route.base_price) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-signpost-2 text-muted" style="font-size: 3rem;"></i>
+            <h5 class="mt-3">No Routes Yet</h5>
+            <p class="text-muted">Add your first route to get started.</p>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRouteModal">
+                <i class="bi bi-plus-lg me-2"></i>Add Route
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add Route Modal -->
+<div class="modal fade" id="addRouteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="/admin/routes/new">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-signpost-2 me-2"></i>Add New Route</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="origin" class="form-label">Origin City</label>
+                        <input type="text" class="form-control" id="origin" name="origin" required placeholder="e.g., New York">
+                    </div>
+                    <div class="mb-3">
+                        <label for="destination" class="form-label">Destination City</label>
+                        <input type="text" class="form-control" id="destination" name="destination" required placeholder="e.g., Boston">
+                    </div>
+                    <div class="mb-3">
+                        <label for="distance_km" class="form-label">Distance (km)</label>
+                        <input type="number" class="form-control" id="distance_km" name="distance_km" required min="1" step="0.1" placeholder="350">
+                    </div>
+                    <div class="mb-3">
+                        <label for="base_price" class="form-label">Base Price ($)</label>
+                        <input type="number" class="form-control" id="base_price" name="base_price" required min="0.01" step="0.01" placeholder="45.00">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Route</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

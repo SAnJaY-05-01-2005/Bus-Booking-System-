@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-3">
+                    <li class="breadcrumb-item"><a href="/search">Search</a></li>
+                    <li class="breadcrumb-item"><a href="/bus/{{ schedule.id }}">Select Seats</a></li>
+                    <li class="breadcrumb-item active">Checkout</li>
+                </ol>
+            </nav>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>Complete Your Booking</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Trip Details -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Trip Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-bus-front text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ schedule.bus_name }}</div>
+                                        <span class="badge {% if schedule.bus_type == 'ac' %}badge-ac{% else %}badge-non-ac{% endif %} small">
+                                            {{ schedule.bus_type|upper }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="text-center me-3">
+                                        <div class="fw-bold">{{ schedule.departure_time[11:16] }}</div>
+                                        <div class="text-muted small">{{ schedule.origin }}</div>
+                                    </div>
+                                    <i class="bi bi-arrow-right text-primary mx-2"></i>
+                                    <div class="text-center">
+                                        <div class="fw-bold">{{ schedule.arrival_time[11:16] }}</div>
+                                        <div class="text-muted small">{{ schedule.destination }}</div>
+                                    </div>
+                                </div>
+                                <div class="text-muted small mt-1">
+                                    {{ schedule.departure_time[:10] }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Selected Seats -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Selected Seats</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for hold in holds %}
+                            <div class="badge bg-primary p-2">
+                                <i class="bi bi-person-fill me-1"></i>
+                                {{ hold.seat_number }}
+                                {% if hold.price_premium > 0 %}
+                                <span class="ms-1">(+${{ "%.2f"|format(hold.price_premium) }})</span>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Price Breakdown -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Price Breakdown</h6>
+                        {% for hold in holds %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Seat {{ hold.seat_number }}</span>
+                            <span>${{ "%.2f"|format(schedule.final_price + hold.price_premium) }}</span>
+                        </div>
+                        {% endfor %}
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold fs-5">Total</span>
+                            <span class="fw-bold fs-4 text-primary">${{ "%.2f"|format(total) }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Hold Timer Warning -->
+                    <div class="alert alert-warning d-flex align-items-center mb-4">
+                        <i class="bi bi-clock me-2"></i>
+                        <span>Your seats are held temporarily. Complete payment to confirm your booking.</span>
+                    </div>
+                    
+                    <!-- Payment Form (Simulated) -->
+                    <form method="post" action="/checkout/{{ schedule.id }}">
+                        <div class="mb-3">
+                            <label class="form-label">Card Number</label>
+                            <input type="text" class="form-control" placeholder="4242 4242 4242 4242" value="4242 4242 4242 4242">
+                            <div class="form-text">Demo mode - any card number works</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Expiry Date</label>
+                                <input type="text" class="form-control" placeholder="MM/YY" value="12/25">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-control" placeholder="123" value="123">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-lock me-2"></i>Pay ${{ "%.2f"|format(total) }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center text-muted">
+                <i class="bi bi-shield-lock me-1"></i>
+                Your payment is secured with SSL encryption
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

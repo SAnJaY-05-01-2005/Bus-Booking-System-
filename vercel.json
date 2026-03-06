@@ -1,0 +1,8 @@
+{
+  "experimentalServices": {
+    "app": {
+      "entrypoint": "backend/main.py",
+      "routePrefix": "/"
+    }
+  }
+}

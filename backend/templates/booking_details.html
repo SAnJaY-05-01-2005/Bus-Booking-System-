@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Booking #{{ booking.booking_reference }} - SwiftBus{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Booking Details</h4>
+                    <span class="badge bg-light text-dark">#{{ booking.booking_reference }}</span>
+                </div>
+                <div class="card-body">
+                    <!-- Status Badge -->
+                    <div class="text-center mb-4">
+                        <span class="badge {% if booking.status == 'confirmed' %}bg-success{% elif booking.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %} fs-5 px-4 py-2">
+                            {{ booking.status|upper }}
+                        </span>
+                    </div>
+                    
+                    <!-- QR Code -->
+                    {% if qr_code %}
+                    <div class="text-center mb-4">
+                        <img src="data:image/png;base64,{{ qr_code }}" alt="Booking QR Code" class="img-fluid" style="max-width: 200px;">
+                        <p class="text-muted mt-2">Scan this QR code at boarding</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Trip Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <h6 class="text-muted mb-2">FROM</h6>
+                                <h5>{{ booking.origin }}</h5>
+                                <p class="mb-0 text-primary">
+                                    <i class="bi bi-clock me-1"></i>{{ booking.departure_time }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <h6 class="text-muted mb-2">TO</h6>
+                                <h5>{{ booking.destination }}</h5>
+                                <p class="mb-0 text-primary">
+                                    <i class="bi bi-calendar me-1"></i>{{ booking.travel_date }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bus & Seat Info -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Bus</h6>
+                            <p class="mb-0">{{ booking.bus_name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Seats</h6>
+                            <p class="mb-0">{{ booking.seat_numbers }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Passenger Info -->
+                    <div class="mb-4">
+                        <h6 class="text-muted">Passenger Details</h6>
+                        <p class="mb-1"><strong>Name:</strong> {{ booking.passenger_name }}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{ booking.passenger_email }}</p>
+                        <p class="mb-0"><strong>Phone:</strong> {{ booking.passenger_phone }}</p>
+                    </div>
+                    
+                    <!-- Payment Info -->
+                    <div class="border-top pt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Total Amount</span>
+                            <span class="h4 mb-0 text-primary">${{ "%.2f"|format(booking.total_amount) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="/my-bookings" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to My Bookings
+                        </a>
+                        {% if booking.status == 'confirmed' %}
+                        <button class="btn btn-outline-primary" onclick="window.print()">
+                            <i class="bi bi-printer me-2"></i>Print Ticket
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

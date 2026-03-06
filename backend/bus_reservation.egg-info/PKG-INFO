@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: bus-reservation
+Version: 0.1.0
+Summary: Bus Reservation System with Seat Locking
+Requires-Python: >=3.12
+Requires-Dist: fastapi[standard]>=0.115.0
+Requires-Dist: jinja2>=3.1.2
+Requires-Dist: python-multipart>=0.0.9
+Requires-Dist: aiosqlite>=0.20.0
+Requires-Dist: passlib[bcrypt]>=1.7.4
+Requires-Dist: python-jose[cryptography]>=3.3.0
+Requires-Dist: qrcode[pil]>=7.4.2
+Requires-Dist: apscheduler>=3.10.4
+Requires-Dist: email-validator>=2.1.0
