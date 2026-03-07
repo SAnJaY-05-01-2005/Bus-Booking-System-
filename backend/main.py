@@ -41,28 +41,32 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    scheduler.shutdown()
-
+    # ... (all your imports should be above this)
 
 app = FastAPI(title="Bus Reservation System", lifespan=lifespan)
+
+# --- ADDED CORS MIDDLEWARE ---
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost:3000",
+    "https://bus-booking-system-sepia.vercel.app",
+    "https://busweb.vercel.app",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# --- END OF CORS MIDDLEWARE ---
 
 # Mount static files
 static_path = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_path):
     app.mount("/static", StaticFiles(directory=static_path), name="static")
-
-# Setup templates
-templates_path = os.path.join(os.path.dirname(__file__), "templates")
-templates = Jinja2Templates(directory=templates_path)
-
-
-# Template context processor
-def get_template_context(request: Request, **kwargs):
-    """Get common template context."""
-    user = get_current_user_from_cookie(request)
-    return {"request": request, "user": user, **kwargs}
-
-
 # ==================== HOME & SEARCH ROUTES ====================
 
 @app.get("/", response_class=HTMLResponse)
