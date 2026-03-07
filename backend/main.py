@@ -46,6 +46,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Bus Reservation System", lifespan=lifespan)
 
 # --- ADDED CORS MIDDLEWARE ---
+# --- ADDED CORS MIDDLEWARE ---
 from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
@@ -61,8 +62,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# --- END OF CORS MIDDLEWARE ---
-
 # Mount static files
 static_path = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_path):
