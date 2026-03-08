@@ -50,6 +50,14 @@ app = FastAPI(title="Bus Reservation System", lifespan=lifespan)
 from fastapi.middleware.cors import CORSMiddleware
 
 # --- Line 56 ---
+# --- ADD THIS LINE ---
+templates = Jinja2Templates(directory="backend/templates")
+# --- ADD THIS HELPER FUNCTION ---
+def get_template_context(request: Request, **kwargs):
+    user = get_current_user_from_cookie(request)
+    context = {"request": request, "user": user}
+    context.update(kwargs)
+    return context
 origins = ["*"]
 
 app.add_middleware(
