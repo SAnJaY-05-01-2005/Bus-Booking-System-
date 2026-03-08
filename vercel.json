@@ -1,9 +1,12 @@
 {
-  "version": 2,
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "https://bus-booking-system-r85w.onrender.com/$1"
+      "source": "/api/:path*",
+      "destination": "https://bus-booking-system-r85w.onrender.com/api/:path*"
+    },
+    {
+      "source": "/auth/:path*",
+      "destination": "https://bus-booking-system-r85w.onrender.com/auth/:path*"
     }
   ]
 }
