@@ -48,12 +48,16 @@ app = FastAPI(title="Bus Reservation System", lifespan=lifespan)
 # --- ADDED CORS MIDDLEWARE ---
 # --- ADDED CORS MIDDLEWARE ---
 from fastapi.middleware.cors import CORSMiddleware
-
-
-
+# Use the directory where main.py actually lives
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "backend/templates"))
-# --- ADD THIS HELPER FUNCTION ---
+
+# Fix: Look for templates directly in the same folder as main.py
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+# Fix: Try to find the static folder even if it is one level up
+static_path = os.path.join(BASE_DIR, "..", "static") 
+if not os.path.exists(static_path):
+    static_path = os.path.join(BASE_DIR, "static")
 def get_template_context(request: Request, **kwargs):
     user = get_current_user_from_cookie(request)
     context = {"request": request, "user": user}
@@ -70,6 +74,7 @@ app.add_middleware(
 )
 # Mount static files
 static_path = os.path.join(os.path.dirname(__file__), "static")
+# Mount static files
 if os.path.exists(static_path):
     app.mount("/static", StaticFiles(directory=static_path), name="static")
 # ==================== HOME & SEARCH ROUTES ====================
