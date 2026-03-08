@@ -1,10 +1,15 @@
 {
   "version": 2,
-  "name": "bus-booking-system-final",
-  "rewrites": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "https://bus-booking-system-r85w.onrender.com/$1"
+      "src": "main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "main.py"
     }
   ]
 }

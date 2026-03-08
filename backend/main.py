@@ -49,9 +49,10 @@ app = FastAPI(title="Bus Reservation System", lifespan=lifespan)
 # --- ADDED CORS MIDDLEWARE ---
 from fastapi.middleware.cors import CORSMiddleware
 
-# --- Line 56 ---
-# --- ADD THIS LINE ---
-templates = Jinja2Templates(directory="backend/templates")
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "backend/templates"))
 # --- ADD THIS HELPER FUNCTION ---
 def get_template_context(request: Request, **kwargs):
     user = get_current_user_from_cookie(request)
@@ -72,8 +73,8 @@ static_path = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_path):
     app.mount("/static", StaticFiles(directory=static_path), name="static")
 # ==================== HOME & SEARCH ROUTES ====================
-
 @app.get("/", response_class=HTMLResponse)
+@app.head("/", response_class=HTMLResponse)  # <--- PASTE THIS LINE HERE
 async def home(request: Request):
     """Home page with search form."""
     db = await get_db()
@@ -956,3 +957,8 @@ async def admin_create_schedule(
     await db.close()
     
     return RedirectResponse("/admin/schedules", status_code=302)
+if __name__ == "__main__":
+    import uvicorn
+    # Use the port Render/Vercel provides, or default to 8000
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
