@@ -49,11 +49,8 @@ app = FastAPI(title="Bus Reservation System", lifespan=lifespan)
 # --- ADDED CORS MIDDLEWARE ---
 from fastapi.middleware.cors import CORSMiddleware
 
-origins = [
-    "http://localhost:3000",
-    "https://bus-booking-system-sepia.vercel.app",
-    "https://busweb.vercel.app",
-]
+# --- Line 56 ---
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
